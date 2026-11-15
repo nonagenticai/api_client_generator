@@ -61,6 +61,14 @@ disable_error_code = ["import-untyped"]
 # Generated example client and reference snippets: not part of the shipped package.
 exclude = "(^|/)(test_clients|examples)/"
 
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.src]
+# Same exclusion as mypy and ruff above: generated clients are not the shipped package,
+# and they carry the `Optional`-annotated-as-bool shapes the generator emits by design.
+exclude = ["test_clients/**"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
