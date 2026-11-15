@@ -38,7 +38,7 @@ dev = [
     "ruff>=0.2",
     "types-pyyaml>=6.0",
     "types-toml>=0.10",
-    "types-requests>=2.31",
+    "types-requests>=2.33.0.20261030",
 ]
 
 [project.scripts]
