@@ -1,0 +1,50 @@
+"""
+{{ service_name }} API models.
+
+Auto-generated Pydantic v2 models from OpenAPI specification.
+DO NOT EDIT - regenerate using apigen.
+"""
+
+from __future__ import annotations
+
+from datetime import date, datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field{% if has_email %}, EmailStr{% endif %}{% if has_url %}, AnyUrl{% endif %}
+
+
+{% for model in models %}
+{% if model.is_enum %}
+class {{ model.name }}({{ model.enum_type }}, Enum):
+    """{{ model.description or model.name + ' enum.' }}"""
+
+{% for value in model.enum_values %}
+    {{ value|upper|replace('-', '_')|replace('.', '_')|replace(' ', '_') }} = {{ value|repr }}
+{% endfor %}
+
+{% else %}
+class {{ model.name }}(BaseModel):
+    """{{ model.description or model.name + ' model.' }}"""
+
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        extra="allow",
+        populate_by_name=True,
+        use_enum_values=True,
+    )
+
+{% for field in model.fields %}
+    {{ field.name }}: {{ field.type_info.to_python_type_hint() }}{% if field.type_info.constraints or field.type_info.description or field.required or field.alias %} = Field(
+        {% if not field.required %}default={% if field.type_info.default is not none %}{{ field.type_info.default|repr }}{% else %}None{% endif %},{% else %}...,{% endif %}{% if field.alias %}
+        alias={{ field.alias|repr }},{% endif %}{% if field.type_info.description %}
+        description={{ field.type_info.description|repr }},{% endif %}{% for key, value in field.type_info.constraints.items() %}
+        {{ key }}={{ value|repr }},{% endfor %}
+    ){% elif not field.required %} = None{% endif %}
+
+{% endfor %}
+
+{% endif %}
+{% endfor %}

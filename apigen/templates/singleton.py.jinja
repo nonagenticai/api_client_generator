@@ -1,0 +1,49 @@
+"""
+{{ service_name }} client singleton.
+
+Auto-configured from environment variables.
+"""
+
+import os
+from typing import Optional
+
+from .client import {{ client_class_name }}
+
+
+_CLIENT_INSTANCE: Optional[{{ client_class_name }}] = None
+
+
+def get_client() -> {{ client_class_name }}:
+    """
+    Get or create the {{ service_name }} client instance.
+
+    Auto-configures from environment variables:
+    - {{ url_env_var }}: Base URL for the API
+    - {{ token_env_var }}: Authentication token
+
+    Returns:
+        Configured {{ client_class_name }} instance
+    """
+    global _CLIENT_INSTANCE
+
+    if _CLIENT_INSTANCE is None:
+        base_url = os.getenv("{{ url_env_var }}", "{{ default_url }}")
+        auth_token = os.getenv("{{ token_env_var }}")
+
+        if not base_url:
+            raise ValueError(
+                f"{{ url_env_var }} environment variable is required"
+            )
+
+        _CLIENT_INSTANCE = {{ client_class_name }}(
+            base_url=base_url,
+            auth_token=auth_token,
+        )
+
+    return _CLIENT_INSTANCE
+
+
+def reset_client() -> None:
+    """Reset the singleton instance (useful for testing)."""
+    global _CLIENT_INSTANCE
+    _CLIENT_INSTANCE = None

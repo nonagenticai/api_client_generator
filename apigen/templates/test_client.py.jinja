@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""
+Test script for the generated {{ service_name }} client.
+
+Tests the auto-generated client against the live {{ title }}.
+"""
+
+import asyncio
+import os
+import sys
+from pathlib import Path
+
+# Add the current directory to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+from {{ service_name }} import {{ client_class_name }}
+
+
+async def test_client():
+    """Test the generated client against the {{ title }}."""
+    print("=" * 80)
+    print("Testing Generated {{ title }} Client")
+    print("=" * 80)
+
+    # Get configuration from environment
+    base_url = os.getenv("{{ url_env_var }}", "{{ default_url }}")
+    {% if auth_type != "none" %}
+    token = os.getenv("{{ token_env_var }}")
+    if not token:
+        print(f"\n⚠️  Warning: {{ token_env_var }} not set, authentication may fail")
+    {% endif %}
+
+    # Check for SSL verification flag
+    verify_ssl = os.getenv("SSL_VERIFY", "true").lower() != "false"
+    if not verify_ssl:
+        print("\n⚠️  SSL verification disabled (set SSL_VERIFY=true to enable)")
+
+    print(f"\nBase URL: {base_url}")
+    {% if auth_type != "none" %}
+    print(f"Token: {'***' + token[-4:] if token and len(token) > 4 else 'Not Set'}")
+    {% endif %}
+    print(f"SSL Verification: {verify_ssl}")
+
+    # Create client instance
+    client = {{ client_class_name }}(
+        base_url=base_url,
+        {% if auth_type == "bearer" %}
+        auth_token=token,
+        {% elif auth_type == "api_key" %}
+        auth_token=token,
+        {% endif %}
+        timeout=30.0,
+        verify_ssl=verify_ssl,
+    )
+
+    success_count = 0
+    failure_count = 0
+    test_number = 0
+
+    async with client:
+        {% for endpoint in test_endpoints %}
+        test_number += 1
+        print(f"\n{test_number}. Testing {{ endpoint.summary or endpoint.name }}")
+        print("-" * 80)
+        try:
+            result = await client.{{ endpoint.operation_id }}()
+            print(f"✓ {{ endpoint.summary or endpoint.name }}: Success")
+
+            # Print result preview
+            if hasattr(result, '__dict__'):
+                result_dict = result.__dict__
+                if isinstance(result_dict, dict) and result_dict:
+                    print("  Response preview:")
+                    for key, value in list(result_dict.items())[:5]:
+                        val_str = str(value)[:100]
+                        print(f"    {key}: {val_str}")
+            elif isinstance(result, dict):
+                print("  Response preview:")
+                for key, value in list(result.items())[:5]:
+                    val_str = str(value)[:100]
+                    print(f"    {key}: {val_str}")
+            elif result is not None:
+                print(f"  Result: {str(result)[:200]}")
+
+            success_count += 1
+        except Exception as e:
+            print(f"✗ {{ endpoint.summary or endpoint.name }} Failed: {type(e).__name__}: {e}")
+            failure_count += 1
+        {% endfor %}
+
+    print("\n" + "=" * 80)
+    print("Test Summary")
+    print("=" * 80)
+    print(f"Total Tests: {test_number}")
+    print(f"Passed: {success_count}")
+    print(f"Failed: {failure_count}")
+
+    if failure_count == 0:
+        print("\n✓ All tests passed!")
+        print("=" * 80)
+        return True
+    else:
+        print(f"\n✗ {failure_count} test(s) failed")
+        print("=" * 80)
+        return False
+
+
+async def main():
+    """Main entry point."""
+    try:
+        success = await test_client()
+        sys.exit(0 if success else 1)
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Tests interrupted by user")
+        sys.exit(130)
+    except Exception as e:
+        print(f"\n✗ Test failed with error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

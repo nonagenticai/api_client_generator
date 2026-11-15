@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# Poetry
+poetry.lock
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Environment variables (CRITICAL - contains secrets)
+.env
+.env.*
+!.env.example
+.env.backup*
+.env.bak*
+.env.save
+.env.old
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker compose backups (may contain sensitive configs)
+docker-compose.yml.backup*
+docker-compose.yml.bak*
+docker-compose.yml.old
+docker-compose.yml.save
+docker-compose.yaml.backup*
+docker-compose.yaml.bak*
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+credentials.json
+secrets.*
+*_secrets.*
+
+# Logs
+*.log
+logs/
+
+# Generated clients (for testing)
+clients/
+output/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
