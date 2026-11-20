@@ -96,7 +96,7 @@ jobs:
           done
           docker exec ci-pg pg_isready -h 127.0.0.1 -U postgres
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           version: ${{ env.UV_VERSION }}
           enable-cache: true
@@ -115,10 +115,12 @@ jobs:
       - name: ruff format
         run: uv run ruff format --check .
 
-      # Type checking is deliberately not in the shared gate: the tool and the paths it
-      # checks are per-repo. If the repo already gates types, re-enable it here:
-      #   - name: types
-      #     run: uv run --with ty ty check <paths>
+      # Type checking is part of the gate — it is never optional. `uvx ty@<version>` because
+      # this repo has no ty dependency (adding one would churn the published package's lock);
+      # the version tracks PyPI latest. Scope is the shipped package: `test_clients/` is a
+      # generated example client, excluded here exactly as it is from mypy and ruff above.
+      - name: ty check
+        run: uvx ty@0.0.104 check apigen/
 
       - name: pytest
         run: uv run pytest -q
